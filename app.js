@@ -2,7 +2,7 @@ const express = require('express');
 const createError = require('http-errors');
 const bodyParser = require('body-parser');
 const userRouter = require('./src/api/user');
-
+const todoRouter = require('./src/api/todo');
 const app = express();
 
 app.listen(8000, () => { console.log(`Express Api Server Now Listening on port 8000`) });
@@ -10,6 +10,7 @@ app.listen(8000, () => { console.log(`Express Api Server Now Listening on port 8
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
 app.use('/users', userRouter);
+app.use('/todos', todoRouter);
 
 // catch 404 and forward to error handler
 // app.use(function(req, res, next) {

@@ -18,11 +18,12 @@ class DB {
 
         try {
             conn = await this.getConnection();
-            res = await conn.execute(query);
+            res = await conn.query(query);
         } catch (error) {
             throw error;
         } finally {
             this.releaseConnection(conn);
+            console.log(res);
             return res;
         }
     }

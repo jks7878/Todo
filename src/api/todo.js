@@ -1,28 +1,31 @@
 const express = require('express');
-
-const DB = require('../db/db');
-const logger = require('../config/winston');
-
 const router = express.Router();
 
+const logger = require('../config/winston');
+const DB = require('../db/db');
+const common = require('../common/queryMaker');
+
 router.post('/', async (req, res) => {
-    const API_NAME = 'Create User';
+    const API_NAME = 'Create Todo';
     
-    const userInfo = req.body;
+    const todo = req.body;
     let result = {};
     
     try {
-        let setClause = [];
-        
-        for(let key of Object.keys(userInfo)) {
-            let value = userInfo[key];
-            if(value && value != '') setClause.push(`${key} = '${value}'`);
-        }
-
-        const query = `INSERT INTO TODO_USER SET ${setClause.join(',')}`;
+        let setClause = common.createSetClause(todo);
+   
+        const query = `INSERT INTO TODO_ITEM SET ${setClause.join(',')}`;
         logger.info(`${API_NAME} - ${query}`);   
 
-        [result] = await DB.executeQuery(query);    
+        result = await DB.executeQuery(query);    
+
+        if(result == false) {
+            result.push({
+                code: 400,
+                message: "존재하지 않는 foreign key",
+                cause: query
+            });
+        }
     } catch (error) {
         logger.error(`${API_NAME} - ${error}`);
     } finally {
@@ -30,26 +33,28 @@ router.post('/', async (req, res) => {
     }
 });
 
-router.get('/:id', async (req, res) => {
-    const API_NAME = 'Get User';
-    const id = req.params.id;
+router.get('/:seq', async (req, res) => {
+    const API_NAME = 'Get TodoList';
+    const seq = req.params.seq;
+    const offset = req.body.offet;
+    const limit = req.body.limit;
 
-    let userInfo = [];
+    let todoList = [];
 
     try {
-        const query = `SELECT * FROM TODO_USER WHERE USER_ID = '${id}'`;
+        const query = `SELECT * FROM TODO_ITEM WHERE REG_USER_SQ = '${seq}' LIMIT ${offset}, ${limit}`;
         logger.info(`${API_NAME} - ${query}`);
 
-        [userInfo] = await DB.executeQuery(query);    
+        [todoList] = await DB.executeQuery(query);    
     } catch (error) {
         logger.error(`${API_NAME} - ${error}`);
     } finally {
-        res.json(userInfo);
+        res.json(todoList);
     }
 });
 
 router.patch('/:seq', async (req, res) => {
-    const API_NAME = 'Update User';
+    const API_NAME = 'Update Todo';
     const seq = req.params.seq;
     
     const updateInfo = req.body;
@@ -57,14 +62,9 @@ router.patch('/:seq', async (req, res) => {
     let query = '';
 
     try {
-        let setClause = [];
+        let setClause = common.createSetClause(updateInfo);
         
-        for(let key of Object.keys(updateInfo)) {
-            let value = updateInfo[key];
-            if(value && value != '') setClause.push(`${key} = '${value}'`);
-        }
-
-        query = `UPDATE TODO_USER SET ${setClause.join(',')} WHERE USER_SQ = ${seq}`; 
+        query = `UPDATE TODO_ITEM SET ${setClause.join(',')} WHERE USER_SQ = ${seq}`; 
 
         [result] = await DB.executeQuery(query);    
     } catch (error) {
@@ -75,7 +75,7 @@ router.patch('/:seq', async (req, res) => {
 });
 
 router.delete('/:sq', async (req, res) => {
-    const API_NAME = 'Delete User';
+    const API_NAME = 'Delete Todo';
     const seq = req.params.seq;
     
     let result = {};
@@ -93,5 +93,6 @@ router.delete('/:sq', async (req, res) => {
         res.json(result);
     }
 });
+
 
 module.exports = router;
