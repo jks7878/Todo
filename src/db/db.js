@@ -23,7 +23,6 @@ class DB {
             throw error;
         } finally {
             this.releaseConnection(conn);
-            console.log(res);
             return res;
         }
     }

@@ -48,6 +48,26 @@ router.get('/:id', async (req, res) => {
     }
 });
 
+router.get('/:seq/todo-items', async (req, res) => {
+    const API_NAME = 'Get Users TodoItems';
+    const seq = req.params.seq;
+    const offset = req.body.offset || 0;
+    const limit = req.body.limit || 10;
+
+    let todoItems = [];
+
+    try {
+        const query = `SELECT * FROM TODO_ITEM WHERE REG_USER_SQ = '${seq}' LIMIT ${offset},${limit}`;
+        logger.info(`${API_NAME} - ${query}`);
+
+        [todoItems] = await DB.executeQuery(query);    
+    } catch (error) {
+        logger.error(`${API_NAME} - ${error}`);
+    } finally {
+        res.json(todoItems);
+    }
+});
+
 router.patch('/:seq', async (req, res) => {
     const API_NAME = 'Update User';
     const seq = req.params.seq;
@@ -70,11 +90,12 @@ router.patch('/:seq', async (req, res) => {
     } catch (error) {
         logger.error(`${API_NAME} - ${error}`);
     } finally {
+        if(result.changedRows > 0) logger.info(result);  
         res.json(result);
     }
 });
 
-router.delete('/:sq', async (req, res) => {
+router.delete('/:seq', async (req, res) => {
     const API_NAME = 'Delete User';
     const seq = req.params.seq;
     
@@ -88,8 +109,7 @@ router.delete('/:sq', async (req, res) => {
     } catch (error) {
         logger.error(`${API_NAME} - ${error}`);
     } finally {
-        console.log(result);
-        if(result.changedRows > 0) logger.info(`${API_NAME} - ${query}`);  
+        if(result.affetchedRows > 0) logger.info(result);  
         res.json(result);
     }
 });

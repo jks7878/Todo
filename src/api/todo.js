@@ -36,13 +36,11 @@ router.post('/', async (req, res) => {
 router.get('/:seq', async (req, res) => {
     const API_NAME = 'Get TodoList';
     const seq = req.params.seq;
-    const offset = req.body.offet;
-    const limit = req.body.limit;
 
     let todoList = [];
 
     try {
-        const query = `SELECT * FROM TODO_ITEM WHERE REG_USER_SQ = '${seq}' LIMIT ${offset}, ${limit}`;
+        const query = `SELECT * FROM TODO_ITEM WHERE ITEM_SQ = '${seq}'`;
         logger.info(`${API_NAME} - ${query}`);
 
         [todoList] = await DB.executeQuery(query);    
@@ -64,24 +62,25 @@ router.patch('/:seq', async (req, res) => {
     try {
         let setClause = common.createSetClause(updateInfo);
         
-        query = `UPDATE TODO_ITEM SET ${setClause.join(',')} WHERE USER_SQ = ${seq}`; 
+        query = `UPDATE TODO_ITEM SET ${setClause.join(',')} WHERE ITEM_SQ = ${seq}`; 
 
         [result] = await DB.executeQuery(query);    
     } catch (error) {
         logger.error(`${API_NAME} - ${error}`);
     } finally {
+        if(result.changedRows > 0) logger.info(result);  
         res.json(result);
     }
 });
 
-router.delete('/:sq', async (req, res) => {
+router.delete('/:seq', async (req, res) => {
     const API_NAME = 'Delete Todo';
     const seq = req.params.seq;
     
     let result = {};
 
     try {
-        const query = `DELETE FROM TODO_USER WHERE USER_SQ = ${seq}`; 
+        const query = `DELETE FROM TODO_ITEM WHERE ITEM_SQ = ${seq}`; 
         logger.info(`${API_NAME} - ${query}`);
 
         [result] = await DB.executeQuery(query);    
@@ -89,7 +88,7 @@ router.delete('/:sq', async (req, res) => {
         logger.error(`${API_NAME} - ${error}`);
     } finally {
         console.log(result);
-        if(result.changedRows > 0) logger.info(`${API_NAME} - ${query}`);  
+        if(result.affetchedRows > 0) logger.info(result);  
         res.json(result);
     }
 });
