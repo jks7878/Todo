@@ -18,7 +18,7 @@ class DB {
 
         try {
             conn = await this.getConnection();
-            res = await conn.query(query);
+            res = await conn.execute(query);
         } catch (error) {
             throw error;
         } finally {

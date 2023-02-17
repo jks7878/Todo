@@ -1,75 +1,73 @@
 const express = require('express');
-
-const DB = require('../db/db');
-const logger = require('../config/winston');
-
 const router = express.Router();
 
+const DB = require('../db/db');
+const queryMaker = require('../common/queryMaker');
+const logMaker = require('../common/logMaker');
+
 router.post('/', async (req, res) => {
-    const API_NAME = 'Create User';
-    
     const userInfo = req.body;
     let result = {};
     
     try {
-        let setClause = [];
+        await createUser(userInfo);
         
-        for(let key of Object.keys(userInfo)) {
-            let value = userInfo[key];
-            if(value && value != '') setClause.push(`${key} = '${value}'`);
-        }
-
-        const query = `INSERT INTO TODO_USER SET ${setClause.join(',')}`;
-        logger.info(`${API_NAME} - ${query}`);   
-
-        [result] = await DB.executeQuery(query);    
-    } catch (error) {
-        logger.error(`${API_NAME} - ${error}`);
+        if(result.affectedRows > 0) logMaker.createLog(req,"info",query);   
+    } catch (error) { 
+        logMaker.createLog(req,"error",error);
     } finally {
         res.json(result);
     }
 });
 
+async function createUser(userInfo) {
+    let setClause = queryMaker.createSetClause(userInfo);
+
+    const query = `INSERT INTO TODO_USER SET ${setClause.join(',')}`;
+
+    [result] = await DB.executeQuery(query);   
+}
+
 router.get('/:id', async (req, res) => {
-    const API_NAME = 'Get User';
     const id = req.params.id;
 
     let userInfo = [];
 
     try {
         const query = `SELECT * FROM TODO_USER WHERE USER_ID = '${id}'`;
-        logger.info(`${API_NAME} - ${query}`);
+        logMaker.createLog(req,"info",query);   
 
         [userInfo] = await DB.executeQuery(query);    
     } catch (error) {
-        logger.error(`${API_NAME} - ${error}`);
+        logMaker.createLog(req,"error",error);
     } finally {
         res.json(userInfo);
     }
 });
 
 router.get('/:seq/todo-items', async (req, res) => {
-    const API_NAME = 'Get Users TodoItems';
     const seq = req.params.seq;
     const offset = req.body.offset || 0;
     const limit = req.body.limit || 10;
 
+    let status = 0;
     let todoItems = [];
 
     try {
         const query = `SELECT * FROM TODO_ITEM WHERE REG_USER_SQ = '${seq}' LIMIT ${offset},${limit}`;
-        logger.info(`${API_NAME} - ${query}`);
+        logMaker.createLog(req,"info",query);
 
         [todoItems] = await DB.executeQuery(query);    
+        status = 200;
     } catch (error) {
-        logger.error(`${API_NAME} - ${error}`);
+        logMaker.createLog(req,"error",error);
+        status = 400;
     } finally {
-        res.json(todoItems);
+        res.status(status).json(todoItems);
     }
 });
 
 router.patch('/:seq', async (req, res) => {
-    const API_NAME = 'Update User';
     const seq = req.params.seq;
     
     const updateInfo = req.body;
@@ -77,39 +75,34 @@ router.patch('/:seq', async (req, res) => {
     let query = '';
 
     try {
-        let setClause = [];
-        
-        for(let key of Object.keys(updateInfo)) {
-            let value = updateInfo[key];
-            if(value && value != '') setClause.push(`${key} = '${value}'`);
-        }
+        let setClause = queryMaker.createSetClause(updateInfo);
 
         query = `UPDATE TODO_USER SET ${setClause.join(',')} WHERE USER_SQ = ${seq}`; 
 
         [result] = await DB.executeQuery(query);    
+
+        if(result.changedRows > 0) logMaker.createLog(req,"info",query);
     } catch (error) {
-        logger.error(`${API_NAME} - ${error}`);
+        logMaker.createLog(req,"error",error);
     } finally {
-        if(result.changedRows > 0) logger.info(result);  
         res.json(result);
     }
 });
 
 router.delete('/:seq', async (req, res) => {
-    const API_NAME = 'Delete User';
     const seq = req.params.seq;
     
     let result = {};
 
     try {
         const query = `DELETE FROM TODO_USER WHERE USER_SQ = ${seq}`; 
-        logger.info(`${API_NAME} - ${query}`);
-
+        
         [result] = await DB.executeQuery(query);    
+
+        if(result.affectedRows > 0) logMaker.createLog(req,"info",query);
     } catch (error) {
-        logger.error(`${API_NAME} - ${error}`);
+        logMaker.createLog(req,"error",error);
     } finally {
-        if(result.affetchedRows > 0) logger.info(result);  
         res.json(result);
     }
 });

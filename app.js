@@ -9,8 +9,8 @@ app.listen(8000, () => { console.log(`Express Api Server Now Listening on port 8
 
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
-app.use('/users', userRouter);
-app.use('/todos', todoRouter);
+app.use('/api/users', userRouter);
+app.use('/api/todos', todoRouter);
 
 // catch 404 and forward to error handler
 // app.use(function(req, res, next) {
