@@ -5,7 +5,7 @@ const userRouter = require('./src/api/user');
 const todoRouter = require('./src/api/todo');
 const app = express();
 
-app.listen(8000, () => { console.log(`Express Api Server Now Listening on port 8000`) });
+app.listen(8000, '0.0.0.0', () => { console.log(`Express Api Server Now Listening on port 8000`) });
 
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());

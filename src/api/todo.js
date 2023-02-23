@@ -57,7 +57,7 @@ async function insertIntoTodoItem(todo) {
         message: "TodoItem Created",
         data: res
     };
-
+    
     return result;
 }
 router.get('/:seq', async (req, res) => {
@@ -114,7 +114,7 @@ async function verificareTodoItemSeq(seq) {
             message: "Cannot find ITEM_SQ from TODO_ITEM"
         };
     }
-    console.log(result);
+    
     return result;
 }
 async function updateTodoItem(updateInfo) {

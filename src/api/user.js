@@ -8,24 +8,31 @@ const logMaker = require('../common/logMaker');
 router.post('/', async (req, res) => {
     const userInfo = req.body;
     let result = {};
-    
+
     try {
-        await createUser(userInfo);
-        
-        if(result.affectedRows > 0) logMaker.createLog(req,"info",query);   
+        result = await createUser(userInfo);
     } catch (error) { 
-        logMaker.createLog(req,"error",error);
+        result.code = 500;
+        result.message = error;
+        result.trace = error.stack;
     } finally {
+        logMaker.createLog(req, result);
         res.json(result);
     }
 });
 
 async function createUser(userInfo) {
+    // 중복 체크 추가 로직 추가
     let setClause = queryMaker.createSetClause(userInfo);
 
     const query = `INSERT INTO TODO_USER SET ${setClause.join(',')}`;
 
-    [result] = await DB.executeQuery(query);   
+    const [result] = await DB.executeQuery(query);   
+
+    // result에 따른 결과값 추가
+    result.code = 201;
+    
+    return result;
 }
 
 router.get('/:id', async (req, res) => {
