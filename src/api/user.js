@@ -3,7 +3,7 @@ const router = express.Router();
 
 const DB = require('../db/db');
 const queryMaker = require('../common/queryMaker');
-const logMaker = require('../common/logMaker');
+const logger = require('../common/logger');
 
 router.post('/', async (req, res) => {
     const userInfo = req.body;
@@ -16,23 +16,49 @@ router.post('/', async (req, res) => {
         result.message = error;
         result.trace = error.stack;
     } finally {
-        logMaker.createLog(req, result);
+        logger.createLog(req, result);
         res.json(result);
     }
 });
 
 async function createUser(userInfo) {
-    // 중복 체크 추가 로직 추가
-    let setClause = queryMaker.createSetClause(userInfo);
-
-    const query = `INSERT INTO TODO_USER SET ${setClause.join(',')}`;
-
-    const [result] = await DB.executeQuery(query);   
-
-    // result에 따른 결과값 추가
-    result.code = 201;
+    let result = {};
+    
+    if(Object.keys(result).length == 0) result = await verificareUserId(userInfo.USER_ID);
+    if(Object.keys(result).length == 0) result = await insertTodoUser(userInfo);
     
     return result;
+}
+
+async function verificareUserId(userId) {
+    let result = {};
+    
+    const [res] = await DB.executeQuery(`SELECT USER_SQ FROM TODO_USER WHERE USER_ID = '${userId}'`);
+    
+    if(res && res.length != 0) {
+        result = {
+            code: 400,
+            message: "userId already Exist"
+        };
+    }
+    
+    return result;
+}
+
+async function insertTodoUser(userInfo) {
+    const setClause = queryMaker.createSetClause(userInfo);
+
+    const [res] = await DB.executeQuery(`INSERT INTO TODO_USER SET ${setClause.join(',')}`);   
+    console.log(res);
+    if(res.affectedRows > 0) {
+        const result = {
+            code: 201,
+            message: "TodoUser Created",
+            data: res
+        }
+
+        return result;
+    }
 }
 
 router.get('/:id', async (req, res) => {
@@ -42,11 +68,11 @@ router.get('/:id', async (req, res) => {
 
     try {
         const query = `SELECT * FROM TODO_USER WHERE USER_ID = '${id}'`;
-        logMaker.createLog(req,"info",query);   
+        logger.createLog(req,"info",query);   
 
         [userInfo] = await DB.executeQuery(query);    
     } catch (error) {
-        logMaker.createLog(req,"error",error);
+        logger.createLog(req,"error",error);
     } finally {
         res.json(userInfo);
     }
@@ -62,12 +88,12 @@ router.get('/:seq/todo-items', async (req, res) => {
 
     try {
         const query = `SELECT * FROM TODO_ITEM WHERE REG_USER_SQ = '${seq}' LIMIT ${offset},${limit}`;
-        logMaker.createLog(req,"info",query);
+        logger.createLog(req,"info",query);
 
         [todoItems] = await DB.executeQuery(query);    
         status = 200;
     } catch (error) {
-        logMaker.createLog(req,"error",error);
+        logger.createLog(req,"error",error);
         status = 400;
     } finally {
         res.status(status).json(todoItems);
@@ -88,9 +114,9 @@ router.patch('/:seq', async (req, res) => {
 
         [result] = await DB.executeQuery(query);    
 
-        if(result.changedRows > 0) logMaker.createLog(req,"info",query);
+        if(result.changedRows > 0) logger.createLog(req,"info",query);
     } catch (error) {
-        logMaker.createLog(req,"error",error);
+        logger.createLog(req,"error",error);
     } finally {
         res.json(result);
     }
@@ -106,9 +132,9 @@ router.delete('/:seq', async (req, res) => {
         
         [result] = await DB.executeQuery(query);    
 
-        if(result.affectedRows > 0) logMaker.createLog(req,"info",query);
+        if(result.affectedRows > 0) logger.createLog(req,"info",query);
     } catch (error) {
-        logMaker.createLog(req,"error",error);
+        logger.createLog(req,"error",error);
     } finally {
         res.json(result);
     }

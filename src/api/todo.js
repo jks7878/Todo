@@ -3,8 +3,7 @@ const router = express.Router();
 
 const DB = require('../db/db');
 const queryMaker = require('../common/queryMaker');
-const logMaker = require('../common/logMaker');
-const logger = require('../config/winston');
+const logger = require('../common/logger');
 
 router.post('/', async (req, res) => {    
     const todo = req.body;
@@ -18,7 +17,7 @@ router.post('/', async (req, res) => {
         result.code = 500;
         result.message = error;
     } finally {
-        logMaker.createLog(req, result);   
+        logger.createLog(req, result);   
         res.status(result.code).json(result);
     }
 });
@@ -27,7 +26,7 @@ async function createTodoItem(todo) {
     let result = {}; 
 
     if(Object.keys(result).length == 0) result = await verificareRegUserSeq(todo.REG_USER_SQ);
-    if(Object.keys(result).length == 0) result = await insertIntoTodoItem(todo);
+    if(Object.keys(result).length == 0) result = await insertTodoItem(todo);
 
     return result;
 }
@@ -47,7 +46,7 @@ async function verificareRegUserSeq(seq) {
     return result;
 }
 
-async function insertIntoTodoItem(todo) {
+async function insertTodoItem(todo) {
     const setClause = queryMaker.createSetClause(todo);
 
     const [res] = await DB.executeQuery(`INSERT INTO TODO_ITEM SET ${setClause.join(',')}`);
@@ -67,11 +66,11 @@ router.get('/:seq', async (req, res) => {
 
     try {
         const query = `SELECT * FROM TODO_ITEM WHERE ITEM_SQ = '${seq}'`;  
-        logMaker.createLog(req,"error",error);
+        logger.createLog(req,"error",error);
 
         [todoList] = await DB.executeQuery(query);    
     } catch (error) {
-        logMaker.createLog(req,"error",error);
+        logger.createLog(req,"error",error);
     } finally {
         res.json(todoList);
     }
@@ -89,7 +88,7 @@ router.patch('/:seq', async (req, res) => {
         result.code = 500;
         result.message = error;
     } finally {
-        logMaker.createLog(req, result);   
+        logger.createLog(req, result);   
         res.status(result.code).json(result);
     }    
 });
@@ -118,8 +117,8 @@ async function verificareTodoItemSeq(seq) {
     return result;
 }
 async function updateTodoItem(updateInfo) {
-    let setClause = queryMaker.createSetClause(updateInfo);
-
+    const setClause = queryMaker.createSetClause(updateInfo);
+    
     const [res] = await DB.executeQuery(`UPDATE TODO_ITEM SET ${setClause.join(',')} WHERE ITEM_SQ = ${updateInfo.ITEM_SQ}`);    
 
     const result = {
@@ -142,7 +141,7 @@ router.delete('/:seq', async (req, res) => {
         result.code = 500;
         result.message = error;
     } finally {
-        logMaker.createLog(req, result);   
+        logger.createLog(req, result);   
         res.status(result.code).json(result);
     }
 });
