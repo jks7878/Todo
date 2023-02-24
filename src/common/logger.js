@@ -7,16 +7,16 @@ class Logger {
 
         switch(code) {
             case 2: 
-                winston.info(`${ip} ${req.method} ${req.baseUrl} ${result.code} ${result?.message} ${result?.data}`);
+                winston.info(`${ip} ${req.method} ${req.baseUrl} ${result.code} ${result?.message || ''} ${result?.data || ''}`);
                 break;
             case 4:
-                winston.info(`${ip} ${req.method} ${req.baseUrl} ${result.code} ${result?.message}`);
+                winston.info(`${ip} ${req.method} ${req.baseUrl} ${result.code} ${result?.message || ''}`);
                 break;
             case 5: 
-                winston.error(`${ip} ${req.method} ${req.baseUrl} ${result.code} ${result?.message} ${result?.trace}`);
+                winston.error(`${ip} ${req.method} ${req.baseUrl} ${result.code} ${result?.message || ''} ${result.trace || ''}`);
                 break;
         }
     }
 }
 
-module.exports = new Logger;
+module.exports = Logger;

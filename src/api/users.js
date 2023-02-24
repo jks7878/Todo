@@ -1,20 +1,20 @@
 const express = require('express');
 const router = express.Router();
 
-const DB = require('../db/db');
-const queryMaker = require('../common/queryMaker');
-const logger = require('../common/logger');
+const queryMaker = require('../common/QueryMaker');
+const logger = require('../common/Logger');
 
-router.post('/', async (req, res) => {
+router.post('/', async (req, res) => {``
     const userInfo = req.body;
     let result = {};
 
     try {
         result = await createUser(userInfo);
     } catch (error) { 
-        result.code = 500;
-        result.message = error;
-        result.trace = error.stack;
+        // result.code = 500;
+        // result.message = error;
+        // result.trace = error.stack;
+        next(error);
     } finally {
         logger.createLog(req, result);
         res.json(result);
@@ -28,37 +28,6 @@ async function createUser(userInfo) {
     if(Object.keys(result).length == 0) result = await insertTodoUser(userInfo);
     
     return result;
-}
-
-async function verificareUserId(userId) {
-    let result = {};
-    
-    const [res] = await DB.executeQuery(`SELECT USER_SQ FROM TODO_USER WHERE USER_ID = '${userId}'`);
-    
-    if(res && res.length != 0) {
-        result = {
-            code: 400,
-            message: "userId already Exist"
-        };
-    }
-    
-    return result;
-}
-
-async function insertTodoUser(userInfo) {
-    const setClause = queryMaker.createSetClause(userInfo);
-
-    const [res] = await DB.executeQuery(`INSERT INTO TODO_USER SET ${setClause.join(',')}`);   
-    console.log(res);
-    if(res.affectedRows > 0) {
-        const result = {
-            code: 201,
-            message: "TodoUser Created",
-            data: res
-        }
-
-        return result;
-    }
 }
 
 router.get('/:id', async (req, res) => {
