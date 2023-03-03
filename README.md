@@ -7,4 +7,4 @@
 - ELK를 사용한 로그 수집 및 시각화
 
 # Issue
-
+2023-03=03 docker 이미지 파일 생성 시 db 접속 시 host 문제 발생 mysql 컨테이너 생성 후 dbconfig의 localhost -> host.docker.internal로 변경 
