@@ -12,6 +12,14 @@ class TodoUser {
     async insertTodoUser(setClause) {
         return await this.DB.executeQuery(`INSERT INTO TODO_USER SET ${setClause}`);   
     }
+
+    async updateTodoUser(setClause, userSeq) {
+        return await this.DB.executeQuery(`UPDATE TODO_USER SET ${setClause} WHERE USER_SQ = ${userSeq}`);    
+    }
+
+    async deleteTodoUser(userSeq) {
+        return await this.DB.executeQuery(`DELETE FROM TODO_USER WHERE USER_SQ = ${userSeq}`);    
+    }
 }
 
 module.exports = TodoUser;

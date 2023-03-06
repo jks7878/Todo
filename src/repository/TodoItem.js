@@ -8,6 +8,10 @@ class TodoItem {
         return await this.DB.executeQuery(`SELECT * FROM TODO_ITEM WHERE ${whereClause}`);
     }
 
+    async getTodoItemFromUserSeq(whereClause, offset, limit) {
+        return await this.DB.executeQuery(`SELECT * FROM TODO_ITEM WHERE ${whereClause} LIMIT ${offset}, ${limit}`);
+    }
+
     async insertTodoItem(setClause) {
         return await this.DB.executeQuery(`INSERT INTO TODO_ITEM SET ${setClause}`);
     }
