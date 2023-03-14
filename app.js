@@ -1,8 +1,10 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const env = require('dotenv').config();
 
 const userRouter = require('./src/api/users');
 const todoRouter = require('./src/api/todos');
+const loginRouter = require('./src/api/login');
 const errorHandler = require('./src/api/error-handler');
 
 const app = express();
@@ -14,6 +16,7 @@ app.use(bodyParser.json());
 
 app.use('/api/users', userRouter);
 app.use('/api/todos', todoRouter);
+app.use('/api/login', loginRouter);
 
 app.use(errorHandler);
 
