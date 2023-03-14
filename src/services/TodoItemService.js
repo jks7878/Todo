@@ -5,11 +5,14 @@ const TodoUser = require('../repository/TodoUser');
 const TodoItem = require('../repository/TodoItem');
 
 class TodoItemService {
-    async getTodoItem(itemSeq) {
-        const queryMaker = new QueryMaker();
-        const todoItem = new TodoItem();
+    constructor() {
+        this.queryMaker = new QueryMaker();
+        this.todoItem = new TodoItem();
+        this.todoUser = new TodoUser();
+    }
 
-        const [res] = await todoItem.getTodoItem(queryMaker.createWhereClause({ ITEM_SQ: itemSeq }));
+    async getTodoItem(itemSeq) {
+        const [res] = await this.todoItem.getTodoItem(this.queryMaker.createWhereClause({ ITEM_SQ: itemSeq }));
         if(!res || res.length == 0) {
             throw new CustomError(404, "Cannot Find Item");
         }
@@ -23,17 +26,12 @@ class TodoItemService {
     }
 
     async createTodoItem(todo) {
-        const queryMaker = new QueryMaker();
-        const todoUser = new TodoUser();
-        const todoItem = new TodoItem();
-
-
-        let [res] = await todoUser.getTodoUser(queryMaker.createWhereClause({ USER_SQ: todo.REG_USER_SQ }));
+        let [res] = await this.todoUser.getTodoUser(this.queryMaker.createWhereClause({ USER_SQ: todo.REG_USER_SQ }));
         if(!res || res.length == 0) {
             throw new CustomError(404, "Cannot Find User");
         }
 
-        [res] = await todoItem.insertTodoItem(queryMaker.createSetClause(todo));
+        [res] = await this.todoItem.insertTodoItem(this.queryMaker.createSetClause(todo));
    
         if(res.affectedRows > 0) {
             const result = {
@@ -47,22 +45,18 @@ class TodoItemService {
     }
 
     async modifyTodoItem(todo) {    
-        const queryMaker = new QueryMaker();
-        const todoUser = new TodoUser();
-        const todoItem = new TodoItem();
-
-        let [res] = await todoUser.getTodoUser(queryMaker.createWhereClause({ USER_SQ: todo.REG_USER_SQ }));
+        let [res] = await this.todoUser.getTodoUser(this.queryMaker.createWhereClause({ USER_SQ: todo.REG_USER_SQ }));
         if(!res || res.length == 0) {
             throw new CustomError(404, "Cannot Find User");
         }
 
-        [res] = await todoItem.getTodoItem(queryMaker.createWhereClause({ ITEM_SQ: todo.ITEM_SQ }));
+        [res] = await this.todoItem.getTodoItem(this.queryMaker.createWhereClause({ ITEM_SQ: todo.ITEM_SQ }));
         if(!res || res.length == 0) {
             throw new CustomError(404, "Cannot Find Item");
         }
 
 
-        [res] = await todoItem.updateTodoItem(queryMaker.createSetClause(todo), todo.ITEM_SQ);
+        [res] = await this.todoItem.updateTodoItem(this.queryMaker.createSetClause(todo), todo.ITEM_SQ);
 
         if(res.affectedRows > 0) {
             const result = {
@@ -77,15 +71,12 @@ class TodoItemService {
     
     
     async deleteTodoItem(itemSeq) {
-        const queryMaker = new QueryMaker();
-        const todoItem = new TodoItem();
-
-        let [res] = await todoItem.getTodoItem(queryMaker.createWhereClause({ITEM_SQ: itemSeq}));
+        let [res] = await this.todoItem.getTodoItem(this.queryMaker.createWhereClause({ITEM_SQ: itemSeq}));
         if(res.length == 0) {
             throw new CustomError(404, "Cannot Find Item");
         }
 
-        [res] = await todoItem.deleteTodoItem(itemSeq);
+        [res] = await this.todoItem.deleteTodoItem(itemSeq);
 
         if(res.affectedRows > 0) {
             const result = {

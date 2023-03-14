@@ -1,111 +1,94 @@
 const express = require('express');
 const router = express.Router();
 
-const queryMaker = require('../common/QueryMaker');
-const logger = require('../common/Logger');
+const TodoUserService = require('../services/TodoUserService');
 
-router.post('/', async (req, res) => {``
-    const userInfo = req.body;
-    let result = {};
+const Logger = require('../common/Logger');
 
+const DEFAULT_LIMIT = 3;
+
+router.post('/', async (req, res, next) => {``
     try {
-        result = await createUser(userInfo);
+        const userInfo = req.body;
+
+        const todoUserService = new TodoUserService();
+
+        const result = await todoUserService.createTodoUser(userInfo);
+
+        new Logger().createLog(req, result);   
+
+        res.status(result.code).json(result);
     } catch (error) { 
-        // result.code = 500;
-        // result.message = error;
-        // result.trace = error.stack;
         next(error);
-    } finally {
-        logger.createLog(req, result);
-        res.json(result);
+    } 
+});
+
+router.get('/:param', async (req, res, next) => {
+    try {
+        const param = req.params.param;
+
+        const todoUserService = new TodoUserService();
+
+        const result = await todoUserService.getTodoUser(param);
+
+        new Logger().createLog(req, result);
+
+        res.status(result.code).json(result);
+    } catch (error) {
+        next(error);
     }
 });
 
-async function createUser(userInfo) {
-    let result = {};
-    
-    if(Object.keys(result).length == 0) result = await verificareUserId(userInfo.USER_ID);
-    if(Object.keys(result).length == 0) result = await insertTodoUser(userInfo);
-    
-    return result;
-}
-
-router.get('/:id', async (req, res) => {
-    const id = req.params.id;
-
-    let userInfo = [];
-
+router.get('/:seq/todo-items', async (req, res, next) => {
     try {
-        const query = `SELECT * FROM TODO_USER WHERE USER_ID = '${id}'`;
-        logger.createLog(req,"info",query);   
+        const cond = {
+            REG_USER_SQ: req.params.seq,
+            offset:  req.body.offset || 0,
+            limit: DEFAULT_LIMIT
+        }
+  
+        const todoUserService = new TodoUserService();
 
-        [userInfo] = await DB.executeQuery(query);    
+        const result = await todoUserService.getTodoItemsFromUserSeq(cond);
+
+        new Logger().createLog(req, result);
+
+        res.status(result.code).json(result);
     } catch (error) {
-        logger.createLog(req,"error",error);
-    } finally {
-        res.json(userInfo);
+        next(error);
     }
 });
 
-router.get('/:seq/todo-items', async (req, res) => {
-    const seq = req.params.seq;
-    const offset = req.body.offset || 0;
-    const limit = req.body.limit || 10;
-
-    let status = 0;
-    let todoItems = [];
-
+router.patch('/:seq', async (req, res, next) => {
     try {
-        const query = `SELECT * FROM TODO_ITEM WHERE REG_USER_SQ = '${seq}' LIMIT ${offset},${limit}`;
-        logger.createLog(req,"info",query);
+        const userInfo = req.body;
+        userInfo.USER_SQ = req.params.seq;
 
-        [todoItems] = await DB.executeQuery(query);    
-        status = 200;
+        const todoUserService = new TodoUserService();
+
+        const result = await todoUserService.modifyTodoUser(userInfo);
+
+        new Logger().createLog(req, result);   
+
+        res.status(result.code).json(result);
     } catch (error) {
-        logger.createLog(req,"error",error);
-        status = 400;
-    } finally {
-        res.status(status).json(todoItems);
+        next(error);
     }
 });
 
-router.patch('/:seq', async (req, res) => {
-    const seq = req.params.seq;
-    
-    const updateInfo = req.body;
-    let result = {};
-    let query = '';
-
+router.delete('/:seq', async (req, res, next) => {
     try {
-        let setClause = queryMaker.createSetClause(updateInfo);
+        const userSeq = req.params.seq;
 
-        query = `UPDATE TODO_USER SET ${setClause.join(',')} WHERE USER_SQ = ${seq}`; 
+        const todoUserService = new TodoUserService();
 
-        [result] = await DB.executeQuery(query);    
+        const result = await todoUserService.deleteTodoUser(userSeq);
 
-        if(result.changedRows > 0) logger.createLog(req,"info",query);
+        new Logger().createLog(req, result);   
+
+        res.status(result.code).json(result);
     } catch (error) {
-        logger.createLog(req,"error",error);
-    } finally {
-        res.json(result);
-    }
-});
-
-router.delete('/:seq', async (req, res) => {
-    const seq = req.params.seq;
-    
-    let result = {};
-
-    try {
-        const query = `DELETE FROM TODO_USER WHERE USER_SQ = ${seq}`; 
-        
-        [result] = await DB.executeQuery(query);    
-
-        if(result.affectedRows > 0) logger.createLog(req,"info",query);
-    } catch (error) {
-        logger.createLog(req,"error",error);
-    } finally {
-        res.json(result);
+        next(error);
     }
 });
 
