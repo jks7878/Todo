@@ -14,6 +14,7 @@ router.post('/login', async (req, res, next) => {
 });
 
 router.post('/logout', async (req, res, next) => {
+    console.log(req.session);
     try {
         const result = await AccountService.logoutUser(req);
 

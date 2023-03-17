@@ -1,30 +1,23 @@
 const CustomError = require('../common/CustomError');
 const QueryMaker = require('../common/QueryMaker');
+
+const tokenService = require('../services/tokenService');
 const token = require('../common/Token');
 
 const TodoUser = require('../repository/TodoUser');
 
-let refreshToken = "";
-
 async function loginUser(req) {
     const userRes = await authenticateUser(req.body.USER_ID, req.body.USER_PW);
     
-    if(userRes) {
-        const payload = {
-            iss: "Todo",
-            sub: "access token",
-        };
-        
-        const accessToken = token.getAccessToken(payload, {expiresIn: "5s"});
-        refreshToken = token.getRefreshToken(payload, {expiresIn: "3d"});
+    if(userRes) {        
+        const jwt = tokenService.createJWT(req);
         
         const result = {
             code: 200,
-            accessToken: accessToken,
-            refreshToken: refreshToken,
+            token: jwt,
             user: userRes
         }
-        
+
         return result;
     }else {
         throw new CustomError(404, "Cannot Find User");
