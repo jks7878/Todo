@@ -1,10 +1,13 @@
 # Todo
 사용자와 게시글로 이루어진 서비스의 api입니다
 
-구현 예정 기능
+구현 기능
 - 유저 검색, 등록, 수정, 삭제
 - Todo 등록, 수정, 삭제
 - ELK를 사용한 로그 수집 및 시각화
+
+# Tech Stack 
+nodeJS / Express / MySQL / Redis / ELK / Docker
 
 # Issue
 2023-03-03  
