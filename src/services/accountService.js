@@ -2,15 +2,13 @@ const CustomError = require('../common/CustomError');
 const QueryMaker = require('../common/QueryMaker');
 
 const tokenService = require('../services/tokenService');
-const token = require('../common/Token');
-
 const TodoUser = require('../repository/TodoUser');
 
 async function loginUser(req) {
     const userRes = await authenticateUser(req.body.USER_ID, req.body.USER_PW);
     
     if(userRes) {        
-        const jwt = tokenService.createJWT(req);
+        const jwt = tokenService.createToken(req.body.USER_ID);
         
         const result = {
             code: 200,

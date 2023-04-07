@@ -1,8 +1,6 @@
 const express = require('express');
-const bodyParser = require('body-parser');
 const cors = require('cors');
-
-const { verifyToken } = require('./src/middleware/authChecker');
+const bodyParser = require('body-parser');
 
 const userRouter = require('./src/api/users');
 const todoRouter = require('./src/api/todos');
