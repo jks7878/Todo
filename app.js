@@ -7,7 +7,7 @@ const todoRouter = require('./src/api/todos');
 const accountRouter = require('./src/api/account');
 const tokenRouter = require('./src/api/token');
 
-const errorHandler = require('./src/api/error-handler');
+const errorHandler = require('./src/middleware/error-handler');
 
 const app = express();
 
