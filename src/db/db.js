@@ -1,31 +1,29 @@
 const mysql = require('mysql2/promise');
 const config = require('./dbconfig.json');
 
-class DB {
-    pool = mysql.createPool(config);
+const pool = mysql.createPool(config);
 
-    async getConnection() {
-        return await this.pool.getConnection(async conn => conn);
-    }
+async function getConnection() {
+    return await pool.getConnection(async conn => conn);
+}
 
-    async releaseConnection(conn) {
-        conn.release();
-    }
+async function releaseConnection(conn) {
+    conn.release();
+}
 
-    async executeQuery(query) {
-        let res = [];
-        let conn = {};
+async function executeQuery(query) {
+    let res = [];
+    let conn = {};
 
-        try {
-            conn = await this.getConnection();
-            res = await conn.execute(query);
-        } catch (error) {
-            throw error;
-        } finally {
-            this.releaseConnection(conn);
-            return res;
-        }
+    try {
+        conn = await getConnection();
+        res = await conn.execute(query);
+    } catch (error) {
+        throw error;
+    } finally {
+        releaseConnection(conn);
+        return res;
     }
 }
 
-module.exports = DB;
+module.exports = { getConnection, releaseConnection, executeQuery };

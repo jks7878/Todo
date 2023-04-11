@@ -3,7 +3,7 @@ const router = express.Router();
 
 const TodoItemService = require('../services/TodoItemService');
 
-const Logger = require('../common/Logger');
+const Logger = require('../middleware/Logger');
 
 router.post('/', async (req, res, next) => {    
     try {

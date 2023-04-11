@@ -1,5 +1,5 @@
 const CustomError = require('../common/CustomError');
-const Logger = require('../common/Logger');
+const Logger = require('../middleware/Logger');
 
 module.exports = (err, req, res, next) => {   
     new Logger().createLog(req, {

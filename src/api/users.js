@@ -1,19 +1,15 @@
 const express = require('express');
 const router = express.Router();
 
-const TodoUserService = require('../services/TodoUserService');
+const todoUserService = require('../services/todoUserService');
 
-const Logger = require('../common/Logger');
+const Logger = require('../middleware/Logger');
 
 const DEFAULT_LIMIT = 3;
 
-router.post('/', async (req, res, next) => {``
+router.post('/', async (req, res, next) => {
     try {
-        const userInfo = req.body;
-
-        const todoUserService = new TodoUserService();
-
-        const result = await todoUserService.createTodoUser(userInfo);
+        const result = await todoUserService.createTodoUser(req.body);
 
         new Logger().createLog(req, result);   
 
@@ -25,11 +21,7 @@ router.post('/', async (req, res, next) => {``
 
 router.get('/:param', async (req, res, next) => {
     try {
-        const param = req.params.param;
-
-        const todoUserService = new TodoUserService();
-
-        const result = await todoUserService.getTodoUser(param);
+        const result = await todoUserService.getTodoUser(req.params.param);
 
         new Logger().createLog(req, result);
 
@@ -47,8 +39,6 @@ router.get('/:seq/todo-items', async (req, res, next) => {
             limit: DEFAULT_LIMIT
         }
   
-        const todoUserService = new TodoUserService();
-
         const result = await todoUserService.getTodoItemsFromUserSeq(cond);
 
         new Logger().createLog(req, result);
@@ -64,8 +54,6 @@ router.patch('/:seq', async (req, res, next) => {
         const userInfo = req.body;
         userInfo.USER_SQ = req.params.seq;
 
-        const todoUserService = new TodoUserService();
-
         const result = await todoUserService.modifyTodoUser(userInfo);
 
         new Logger().createLog(req, result);   
@@ -79,8 +67,6 @@ router.patch('/:seq', async (req, res, next) => {
 router.delete('/:seq', async (req, res, next) => {
     try {
         const userSeq = req.params.seq;
-
-        const todoUserService = new TodoUserService();
 
         const result = await todoUserService.deleteTodoUser(userSeq);
 

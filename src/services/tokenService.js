@@ -6,7 +6,7 @@ async function createTokens(userId) {
     const accessToken = await createAccessToken();
     const refreshToken = await createRefreshToken();
 
-    await redis.set(`RefreshToken:${userId}`, refreshToken, {EX: 60});
+    await redis.set(`RefreshToken:${userId}`, refreshToken, {EX: 3600});
 
     return {
         accessToken: accessToken,
@@ -19,15 +19,15 @@ async function createAccessToken() {
 }
 
 async function createRefreshToken() {
-    return jwt.create({iss : "Todo"}, {subject: "refresh token", expiresIn: "1m"});
+    return jwt.create({iss : "Todo"}, {subject: "refresh token", expiresIn: "1h"});
 }
 
 async function getToken(token) {
     return jwt.verify(token);
 }   
 
-async function deleteToken() {
-
+async function deleteToken(userId) {
+    return redis.del(`RefreshToken:${userId}`);
 }
 
 module.exports = {createTokens, createAccessToken, getToken, deleteToken};
