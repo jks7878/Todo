@@ -1,52 +1,37 @@
 const express = require('express');
 const router = express.Router();
 
-const TodoItemService = require('../services/TodoItemService');
+const { logging } = require('../middleware/logger');
+const { authCheck } = require('../middleware/authCheck');
 
-const Logger = require('../common/Logger');
+const todoItemService = require('../services/TodoItemService');
 
-router.post('/', async (req, res, next) => {    
+router.post('/', logging, authCheck, async (req, res, next) => {    
     try {
-        const todo = req.body;
-
-        const todoItemService = new TodoItemService();
-
-        const result = await todoItemService.createTodoItem(todo);
-
-        new Logger().createLog(req, result);   
-
+        const result = await todoItemService.createTodoItem(req.body);
+ 
         res.status(result.code).json(result);
     } catch (error) {
         next(error);
     }
 });
 
-router.get('/:seq', async (req, res, next) => {
+router.get('/:seq', logging, authCheck, async (req, res, next) => {
     try {
-        const itemSeq = req.params.seq;
-
-        const todoItemService = new TodoItemService();
-
-        const result = await todoItemService.getTodoItem(itemSeq);
-
-        new Logger().createLog(req, result);
-
+        const result = await todoItemService.getTodoItem(req.params.seq);
+  
         res.status(result.code).json(result);
     } catch (error) {
         next(error);
     }
 });
 
-router.patch('/:seq', async (req, res, next) => {
+router.patch('/:seq', logging, authCheck, async (req, res, next) => {
     try {
         const todo = req.body;
         todo.ITEM_SQ = req.params.seq;
 
-        const todoItemService = new TodoItemService();
-
         const result = await todoItemService.modifyTodoItem(todo);
-
-        new Logger().createLog(req, result);   
 
         res.status(result.code).json(result);
     } catch (error) {
@@ -55,15 +40,9 @@ router.patch('/:seq', async (req, res, next) => {
 });
 
 
-router.delete('/:seq', async (req, res, next) => {
+router.delete('/:seq', logging, authCheck, async (req, res, next) => {
     try {      
-        const itemSeq = req.params.seq;
-
-        const todoItemService = new TodoItemService();
-
-        const result = await todoItemService.deleteTodoItem(itemSeq);
-
-        new Logger().createLog(req, result);   
+        const result = await todoItemService.deleteTodoItem(req.params.seq);
 
         res.status(result.code).json(result);
     } catch (error) {

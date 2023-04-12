@@ -1,21 +1,16 @@
 const express = require('express');
 const router = express.Router();
 
-const TodoUserService = require('../services/TodoUserService');
+const { logging } = require('../middleware/logger');
+const { authCheck } = require('../middleware/authCheck');
 
-const Logger = require('../common/Logger');
+const todoUserService = require('../services/todoUserService');
 
 const DEFAULT_LIMIT = 3;
 
-router.post('/', async (req, res, next) => {``
+router.post('/', logging, async (req, res, next) => {
     try {
-        const userInfo = req.body;
-
-        const todoUserService = new TodoUserService();
-
-        const result = await todoUserService.createTodoUser(userInfo);
-
-        new Logger().createLog(req, result);   
+        const result = await todoUserService.createTodoUser(req.body);
 
         res.status(result.code).json(result);
     } catch (error) { 
@@ -23,15 +18,9 @@ router.post('/', async (req, res, next) => {``
     } 
 });
 
-router.get('/:param', async (req, res, next) => {
+router.get('/:param', logging, authCheck, async (req, res, next) => {
     try {
-        const param = req.params.param;
-
-        const todoUserService = new TodoUserService();
-
-        const result = await todoUserService.getTodoUser(param);
-
-        new Logger().createLog(req, result);
+        const result = await todoUserService.getTodoUser(req.params.param);
 
         res.status(result.code).json(result);
     } catch (error) {
@@ -39,7 +28,7 @@ router.get('/:param', async (req, res, next) => {
     }
 });
 
-router.get('/:seq/todo-items', async (req, res, next) => {
+router.get('/:seq/todo-items', logging, authCheck, async (req, res, next) => {
     try {
         const cond = {
             REG_USER_SQ: req.params.seq,
@@ -47,11 +36,7 @@ router.get('/:seq/todo-items', async (req, res, next) => {
             limit: DEFAULT_LIMIT
         }
   
-        const todoUserService = new TodoUserService();
-
         const result = await todoUserService.getTodoItemsFromUserSeq(cond);
-
-        new Logger().createLog(req, result);
 
         res.status(result.code).json(result);
     } catch (error) {
@@ -59,16 +44,12 @@ router.get('/:seq/todo-items', async (req, res, next) => {
     }
 });
 
-router.patch('/:seq', async (req, res, next) => {
+router.patch('/:seq', logging, authCheck, async (req, res, next) => {
     try {
         const userInfo = req.body;
         userInfo.USER_SQ = req.params.seq;
 
-        const todoUserService = new TodoUserService();
-
         const result = await todoUserService.modifyTodoUser(userInfo);
-
-        new Logger().createLog(req, result);   
 
         res.status(result.code).json(result);
     } catch (error) {
@@ -76,15 +57,11 @@ router.patch('/:seq', async (req, res, next) => {
     }
 });
 
-router.delete('/:seq', async (req, res, next) => {
+router.delete('/:seq', logging, authCheck, async (req, res, next) => {
     try {
         const userSeq = req.params.seq;
 
-        const todoUserService = new TodoUserService();
-
         const result = await todoUserService.deleteTodoUser(userSeq);
-
-        new Logger().createLog(req, result);   
 
         res.status(result.code).json(result);
     } catch (error) {

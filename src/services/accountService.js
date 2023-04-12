@@ -1,8 +1,7 @@
 const CustomError = require('../common/CustomError');
-const QueryMaker = require('../common/QueryMaker');
-
+const queryMaker = require('../common/QueryMaker');
 const tokenService = require('../services/tokenService');
-const TodoUser = require('../repository/TodoUser');
+const todoUser = require('../repository/todoUser');
 
 async function loginUser(userId, userPw) {
     const userRes = await authenticateUser(userId, userPw);
@@ -23,15 +22,12 @@ async function loginUser(userId, userPw) {
 }
 
 async function logoutUser(userId) {
-    tokenService.deleteToekn(userId);
+    const result = await tokenService.deleteToken(userId);
 
-    return {code: 200};
+    if(result) return {code: 200};
 }
 
 async function authenticateUser(userId, userPw) {
-    const queryMaker = new QueryMaker();
-    const todoUser = new TodoUser();
-
     let [userRes] = await todoUser.getTodoUser(queryMaker.createWhereClause({USER_ID: userId, USER_PW: userPw}));
     
     if(userRes.length > 0) {
@@ -39,10 +35,6 @@ async function authenticateUser(userId, userPw) {
     }else {
         return false;
     }
-}
-
-async function authorization() {
-
 }
 
 module.exports = {loginUser, logoutUser};

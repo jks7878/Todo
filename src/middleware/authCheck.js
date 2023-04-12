@@ -9,12 +9,11 @@ module.exports = {
             if(req.headers.authorization) {
                 const accessToken = await jwt.verify(req.headers.authorization);
                 if(!accessToken) {
-                    const refreshToken = await jwt.verify(await redis.get(`RefreshToken:${req.params.id}`));
+                    const refreshToken = await jwt.verify(await redis.get(`RefreshToken:${req.body.USER_ID}`));
                     if(!refreshToken) throw new CustomError(401, "JWT is Expired");
                 }
-                const t = await tokenService.createAccessToken();
-                console.log(t);
-                req.headers.authorization = t;
+
+                req.headers.authorization = await tokenService.createAccessToken();
                 
                 next();
             }else {

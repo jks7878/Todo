@@ -4,7 +4,6 @@ const router = express.Router();
 const { authCheck } = require('../middleware/authCheck');
 
 const tokenService = require('../services/tokenService');
-const Logger = require('../common/Logger');
 
 router.post('/', async (req, res, next) => {
     try {
@@ -15,7 +14,7 @@ router.post('/', async (req, res, next) => {
     }
 });
 
-router.get('/:id', authCheck, async (req, res, next) => {
+router.post('/test', authCheck, async (req, res, next) => {
     try {
         const result = await tokenService.getToken(req.headers.authorization);
 
@@ -24,16 +23,6 @@ router.get('/:id', authCheck, async (req, res, next) => {
         next(error);
     }
 
-});
-
-router.post('/refresh', async (req, res, next) => {
-    try {
-        const result = tokenService.refreshJWT(req);
-        
-        res.status(result.code).json(result);  
-    } catch (error) {
-        next(error);
-    }
 });
 
 module.exports = router;

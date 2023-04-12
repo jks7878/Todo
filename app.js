@@ -13,10 +13,10 @@ const app = express();
 
 app.listen(8000, '0.0.0.0', () => { console.log(`Express Api Server Now Listening on port 8000`) });
 
-const whiteList = ["http://localhost:3000"];
+const whiteList = ["http://localhost"];
 const corsOptions = {
     origin: function (origin, callback) {
-        if(whiteList.indexOf(origin) !== -1) {
+        if(whiteList.indexOf(origin) !== -1 || !origin) {
             callback(null, true);
         }else {
             callback(new Error("Not Allowed Origin"));
