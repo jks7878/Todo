@@ -4,7 +4,6 @@ const router = express.Router();
 const { authCheck } = require('../middleware/authCheck');
 
 const tokenService = require('../services/tokenService');
-const Logger = require('../middleware/Logger');
 
 router.post('/', async (req, res, next) => {
     try {

@@ -14,7 +14,7 @@ async function getTodoItem(itemSeq) {
         code: 200,
         data: res
     }
-
+    
     return result;
 }
 
