@@ -3,12 +3,11 @@ const router = express.Router();
 
 const { logging } = require('../middleware/logger');
 const { authCheck } = require('../middleware/authCheck');
+const { checkUserInfo, checkUserExist } = require('../middleware/userCheck');
 
 const todoUserService = require('../services/todoUserService');
 
-const DEFAULT_LIMIT = 3;
-
-router.post('/', logging, async (req, res, next) => {
+router.post('/', logging, checkUserInfo, async (req, res, next) => {
     try {
         const result = await todoUserService.createTodoUser(req.body);
 
@@ -18,9 +17,9 @@ router.post('/', logging, async (req, res, next) => {
     } 
 });
 
-router.get('/:param', logging, authCheck, async (req, res, next) => {
+router.get('/:param', logging, checkUserExist, async (req, res, next) => {
     try {
-        const result = await todoUserService.getTodoUser(req.params.param);
+        const result = await todoUserService.getTodoUser(req.cond);
 
         res.status(result.code).json(result);
     } catch (error) {
@@ -28,23 +27,7 @@ router.get('/:param', logging, authCheck, async (req, res, next) => {
     }
 });
 
-router.get('/:seq/todo-items', logging, authCheck, async (req, res, next) => {
-    try {
-        const cond = {
-            REG_USER_SQ: req.params.seq,
-            offset:  req.body.offset || 0,
-            limit: DEFAULT_LIMIT
-        }
-  
-        const result = await todoUserService.getTodoItemsFromUserSeq(cond);
-
-        res.status(result.code).json(result);
-    } catch (error) {
-        next(error);
-    }
-});
-
-router.patch('/:seq', logging, authCheck, async (req, res, next) => {
+router.patch('/:seq', logging, authCheck, checkUserExist, async (req, res, next) => {
     try {
         const userInfo = req.body;
         userInfo.USER_SQ = req.params.seq;
@@ -57,7 +40,7 @@ router.patch('/:seq', logging, authCheck, async (req, res, next) => {
     }
 });
 
-router.delete('/:seq', logging, authCheck, async (req, res, next) => {
+router.delete('/:seq', logging, authCheck, checkUserExist, async (req, res, next) => {
     try {
         const userSeq = req.params.seq;
 
