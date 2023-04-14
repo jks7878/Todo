@@ -1,61 +1,54 @@
 const CustomError = require('../common/CustomError');
-const queryMaker = require('../common/QueryMaker');
 
 const todoUser = require('../repository/todoUser');
 const todoItem = require('../repository/todoItem');
 
-async function getTodoItem(itemSeq) {
-    const [res] = await todoItem.getTodoItem(queryMaker.createWhereClause({ ITEM_SQ: itemSeq }));
-    if(!res || res.length == 0) {
-        throw new CustomError(404, "Cannot Find Item");
-    }
-
-    const result = {
-        code: 200,
-        data: res
-    }
-    
-    return result;
-}
-
 async function createTodoItem(todo) {
-    let [res] = await todoUser.getTodoUser(queryMaker.createWhereClause({ USER_SQ: todo.REG_USER_SQ }));
-    if(!res || res.length == 0) {
-        throw new CustomError(404, "Cannot Find User");
-    }
+    const [insertRes] = await todoItem.insertTodoItem(todo);
 
-    [res] = await todoItem.insertTodoItem(queryMaker.createSetClause(todo));
-
-    if(res.affectedRows > 0) {
+    if(insertRes.affectedRows > 0) {
         const result = {
             code: 201,
             message: "TodoItem Created",
-            data: JSON.stringify(res)
+            data: JSON.stringify(insertRes)
         }
 
         return result;
     }else throw new CustomError(500);
 }
 
+async function getTodoItem(cond) {
+    const [itemRes] = await todoItem.getTodoItem(cond);
+
+    const result = {
+        code: 200,
+        data: itemRes
+    }
+    
+    return result;
+}
+
+async function getTodoItemsFromUserSeq(cond) {
+    const [itemRes] = await todoItem.getTodoItemFromUserSeq(cond);
+
+    if(itemRes || itemRes.length != 0) {
+        const result = {
+            code: 200,
+            data: JSON.stringify(itemRes)
+        }
+
+        return result;  
+    }else throw new CustomError(500);
+}
+
 async function modifyTodoItem(todo) {    
-    let [res] = await todoUser.getTodoUser(queryMaker.createWhereClause({ USER_SQ: todo.REG_USER_SQ }));
-    if(!res || res.length == 0) {
-        throw new CustomError(404, "Cannot Find User");
-    }
+    const [updateRes] = await todoItem.updateTodoItem(todo, todo.ITEM_SQ);
 
-    [res] = await todoItem.getTodoItem(queryMaker.createWhereClause({ ITEM_SQ: todo.ITEM_SQ }));
-    if(!res || res.length == 0) {
-        throw new CustomError(404, "Cannot Find Item");
-    }
-
-
-    [res] = await todoItem.updateTodoItem(queryMaker.createSetClause(todo), todo.ITEM_SQ);
-
-    if(res.affectedRows > 0) {
+    if(updateRes.affectedRows > 0) {
         const result = {
             code: 200,
             message: "TodoItem Modified",
-            data: JSON.stringify(res)
+            data: JSON.stringify(updateRes)
         }
 
         return result;
@@ -64,22 +57,17 @@ async function modifyTodoItem(todo) {
 
 
 async function deleteTodoItem(itemSeq) {
-    let [res] = await todoItem.getTodoItem(queryMaker.createWhereClause({ITEM_SQ: itemSeq}));
-    if(res.length == 0) {
-        throw new CustomError(404, "Cannot Find Item");
-    }
+    const [deleteRes] = await todoItem.deleteTodoItem(itemSeq);
 
-    [res] = await todoItem.deleteTodoItem(itemSeq);
-
-    if(res.affectedRows > 0) {
+    if(deleteRes.affectedRows > 0) {
         const result = {
             code: 200,
             message: "TodoItem Deleted",
-            data: JSON.stringify(res)
+            data: JSON.stringify(deleteRes)
         }
 
         return result;
     }else throw new CustomError(500);
 }
 
-module.exports = { getTodoItem, createTodoItem, modifyTodoItem, deleteTodoItem };
+module.exports = { createTodoItem, getTodoItem, getTodoItemsFromUserSeq, modifyTodoItem, deleteTodoItem };
