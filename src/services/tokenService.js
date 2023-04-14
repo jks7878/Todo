@@ -1,6 +1,5 @@
 const jwt = require('../common/Jwt');
 const redis = require('../db/redis');
-require('dotenv').config();
 
 async function createTokens(userId) {
     const accessToken = await createAccessToken();

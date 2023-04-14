@@ -9,9 +9,9 @@ const tokenRouter = require('./src/api/token');
 
 const errorHandler = require('./src/middleware/error-handler');
 
-const app = express();
+require('dotenv').config();
 
-app.listen(8000, '0.0.0.0', () => { console.log(`Express Api Server Now Listening on port 8000`) });
+const app = express();
 
 const whiteList = ["http://localhost:3000"];
 const corsOptions = {
