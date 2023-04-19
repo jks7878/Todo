@@ -32,6 +32,8 @@ describe('userCheck - checkUserInfo Unit Test', () => {
   
       expect(next).toHaveBeenCalledTimes(1);
     });
+
+    
   });
 
 // describe("Test example", () => {
