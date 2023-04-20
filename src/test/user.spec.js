@@ -2,6 +2,7 @@ const { checkUserInfo, checkUserExist } = require('../middleware/userCheck');
 const todoUser = require('../repository/todoUser');
 jest.mock('../repository/todoUser');
 
+
 describe('Middleware', () => {
   describe('checkUserInfo', () => {
     const res = {};
