@@ -1,14 +1,14 @@
 const mysql = require('mysql2/promise');
-const config = require('./dbconfig.json');
+// const config = require('./dbconfig.json');
 
-const pool = mysql.createPool(config || {
-    host: process.env.host,
-    port: process.env.port,
-    user: process.env.user,
-    password: process.env.password,
-    database: process.env.database,
-    connectionLimit: process.env.connectionLimit,
-    waitForConnections: process.env.waitForConnections
+const pool = mysql.createPool({
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    user: process.env.DB_USER,
+    password: process.env.DB_PW,
+    database: process.env.DB_NAME,
+    connectionLimit: 1,
+    waitForConnections: false
 });
 
 async function getConnection() {
