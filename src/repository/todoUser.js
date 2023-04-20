@@ -1,5 +1,5 @@
 const DB = require('../db/DB');
-const queryMaker = require('../common/QueryMaker');
+const queryMaker = require('../common/queryMaker');
 
 async function getTodoUserCnt(cond) {
     return await DB.executeQuery(`SELECT COUNT(*) CNT FROM TODO_USER WHERE ${queryMaker.createWhereClause(cond)}`);

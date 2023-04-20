@@ -3,7 +3,7 @@ const todoUser = require('../repository/todoUser');
 
 async function createTodoUser(userInfo) {
     const [insertRes] = await todoUser.insertTodoUser(userInfo);
-
+    console.log(insertRes);
     if(insertRes.affectedRows > 0) {
         const result = {
             code: 201,

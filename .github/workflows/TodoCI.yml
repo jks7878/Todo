@@ -16,6 +16,12 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Use Node.js 18.x
+      env:
+        DB_HOST: ${{ secrets.DB_HOST }}
+        DB_PORT: ${{ secrets.DB_PORT }}
+        DB_USER: ${{ secrets.DB_USER }}
+        DB_PW: ${{ secrets.DB_PW }}
+        DB_NAME: ${{ secrets.DB_NAME }}
       uses: actions/setup-node@v3
       with:
         node-version: 18.x

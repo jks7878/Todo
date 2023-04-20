@@ -7,10 +7,10 @@ const { checkUserInfo, checkUserExist } = require('../middleware/userCheck');
 
 const todoUserService = require('../services/todoUserService');
 
-router.post('/', logging, checkUserInfo, async (req, res, next) => {
+router.post('/', logging, checkUserInfo, checkUserExist, async (req, res, next) => {
     try {
         const result = await todoUserService.createTodoUser(req.body);
-
+        
         res.status(result.code).json(result);
     } catch (error) { 
         next(error);
@@ -18,7 +18,7 @@ router.post('/', logging, checkUserInfo, async (req, res, next) => {
 });
 
 router.get('/:param', logging, checkUserExist, async (req, res, next) => {
-    try {
+    try { 
         const result = await todoUserService.getTodoUser(req.cond);
 
         res.status(result.code).json(result);
