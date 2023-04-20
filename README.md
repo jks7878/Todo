@@ -1,3 +1,4 @@
+[![Todo CI](https://github.com/jks7878/Todo/actions/workflows/TodoCI.yml/badge.svg)](https://github.com/jks7878/Todo/actions/workflows/TodoCI.yml)
 # Todo
 사용자와 게시글로 이루어진 서비스의 api 서버
 
