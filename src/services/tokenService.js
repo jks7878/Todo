@@ -14,11 +14,11 @@ async function createTokens(userId) {
 }
 
 async function createAccessToken() {
-    return jwt.create({iss : "Todo"}, {subject: "access token", expiresIn: "5s"});
+    return jwt.create({iss : "Todo"}, {subject: "access token", expiresIn: "5m"});
 }
 
 async function createRefreshToken() {
-    return jwt.create({iss : "Todo"}, {subject: "refresh token", expiresIn: "1h"});
+    return jwt.create({iss : "Todo"}, {subject: "refresh token", expiresIn: "10m"});
 }
 
 async function getToken(token) {

@@ -5,7 +5,7 @@ const todoUser = require('../repository/todoUser');
 
 async function loginUser(userId, userPw) {
     const userRes = await authenticateUser(userId, userPw);
-    
+   
     if(userRes) {        
         const jwt = await tokenService.createTokens(userId);
  
@@ -14,7 +14,7 @@ async function loginUser(userId, userPw) {
             token: jwt,
             user: userRes
         }
-   
+        
         return result;
     }else {
         throw new CustomError(404, "Cannot Find User");
@@ -28,8 +28,8 @@ async function logoutUser(userId) {
 }
 
 async function authenticateUser(userId, userPw) {
-    let [userRes] = await todoUser.getTodoUser(queryMaker.createWhereClause({USER_ID: userId, USER_PW: userPw}));
-    
+    let [userRes] = await todoUser.getTodoUser({USER_ID: userId, USER_PW: userPw});
+
     if(userRes.length > 0) {
         return userRes[0];
     }else {

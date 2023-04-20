@@ -1,0 +1,864 @@
+{
+	"info": {
+		"_postman_id": "f2a9f3db-b7f6-4466-b1c5-a3df3367fb51",
+		"name": "Todo API Test",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "24155505"
+	},
+	"item": [
+		{
+			"name": "CreateUser",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const responseJson = pm.response.json();\r",
+							"pm.collectionVariables.set(\"USER_SEQ\", JSON.parse(responseJson.data).insertId);\r",
+							"pm.test(\"정상값일 경우 201\", () => {\r",
+							"    pm.expect(responseJson.code).to.eql(201);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"USER_ID\": \"test-user\",\r\n    \"USER_PW\": \"1234\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8000/api/users",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CreateUser - Duplicated Value",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const responseJson = pm.response.json();\r",
+							"\r",
+							"pm.test(\"중복된 USER_ID일 경우 409\", () => {\r",
+							"    pm.expect(responseJson.code).to.eql(409);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"USER_ID\": \"test-user\",\r\n    \"USER_PW\": \"1234\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8000/api/users",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CreateUser - Empty Value",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const responseJson = pm.response.json();\r",
+							"\r",
+							"pm.test(\"빈 값일 경우 400\", () => {\r",
+							"    pm.expect(responseJson.code).to.eql(400);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8000/api/users",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetUser",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const responseJson = pm.response.json();\r",
+							"const userData = JSON.parse(responseJson.data)[0];\r",
+							"pm.collectionVariables.set(\"USER_ID\", userData.USER_ID);\r",
+							"pm.collectionVariables.set(\"USER_PW\", userData.USER_PW);\r",
+							"pm.test(\"테스트용 USER_SEQ와 Postman collectionVariables의 USER_SEQ 비교\", () => {\r",
+							"    pm.expect(userData.USER_SQ).to.eql(pm.collectionVariables.get(\"USER_SEQ\"));\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8000/api/users/{{USER_SEQ}}",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"users",
+						"{{USER_SEQ}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetUser - Invalid Seq",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const responseJson = pm.response.json();\r",
+							"\r",
+							"pm.test(\"존재하지 않는 User Seq일 경우 404\", () => {\r",
+							"    pm.expect(responseJson.code).to.eql(404);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8000/api/users/0",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"users",
+						"0"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const responseJson = pm.response.json();\r",
+							"pm.collectionVariables.set(\"ACCESS_TOKEN\", responseJson.token.accessToken);\r",
+							"pm.collectionVariables.set(\"REFRESH_TOKEN\", responseJson.token.refreshToken);\r",
+							"pm.test(\"로그인 성공 시 200\", () => {\r",
+							"    pm.expect(responseJson.code).to.eql(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"USER_ID\": \"{{USER_ID}}\",\r\n    \"USER_PW\": \"{{USER_PW}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8000/api/account/login",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"account",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "EditUser",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const responseJson = pm.response.json();\r",
+							"const userData = JSON.parse(responseJson.data);\r",
+							"pm.collectionVariables.set(\"USER_PW\", JSON.parse(pm.request.body.raw).USER_PW);\r",
+							"pm.test(\"성공 시 return 200, affectedRows == 1\", () => {\r",
+							"    pm.expect(responseJson.code).to.eql(200);\r",
+							"    pm.expect(userData.affectedRows).to.eql(1);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{ACCESS_TOKEN}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"USER_PW\": {{USER_SEQ}}\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8000/api/users/{{USER_SEQ}}",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"users",
+						"{{USER_SEQ}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "EditUser - Invalid Seq",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const responseJson = pm.response.json();\r",
+							"\r",
+							"pm.test(\"존재하지 않는 User Seq일 경우 404\", () => {\r",
+							"    pm.expect(responseJson.code).to.eql(404);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{ACCESS_TOKEN}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"USER_PW\": \"1541\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8000/api/users/0",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"users",
+						"0"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CreateItem",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const responseJson = pm.response.json();\r",
+							"pm.collectionVariables.set(\"ITEM_SEQ\", JSON.parse(responseJson.data).insertId);\r",
+							"pm.test(\"성공 시 return 201\", () => {\r",
+							"    pm.expect(responseJson.code).to.eql(201);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{ACCESS_TOKEN}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"REG_USER_SQ\": \"{{USER_SEQ}}\",\r\n    \"ITEM_TXT\": \"{{USER_ID}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8000/api/todos",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"todos"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetItem",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const responseJson = pm.response.json();\r",
+							"\r",
+							"pm.test(\"테스트용 ITEM_SEQ와 Postman collectionVariables의 ITEM_SEQ 비교\", () => {\r",
+							"    pm.expect(responseJson.data[0].ITEM_SQ).to.eql(pm.collectionVariables.get(\"ITEM_SEQ\"));\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{ACCESS_TOKEN}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "localhost:8000/api/todos/{{ITEM_SEQ}}",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"todos",
+						"{{ITEM_SEQ}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetItem - Invalid Seq",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{ACCESS_TOKEN}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "localhost:8000/api/todos/0",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"todos",
+						"0"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetItemByUserSeq - Invalid User Seq",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8000/api/todos/{{USER_SEQ}}/todo-items",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"todos",
+						"{{USER_SEQ}}",
+						"todo-items"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetItemByUserSeq - Invalid User Seq",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const responseJson = pm.response.json();\r",
+							"\r",
+							"pm.test(\"존재하지 않는 ITEM_SEQ일 경우 404\", () => {\r",
+							"    pm.expect(responseJson.code).to.eql(404);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{ACCESS_TOKEN}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "localhost:8000/api/todos/0/todo-items",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"todos",
+						"0",
+						"todo-items"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "EditItem",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const responseJson = pm.response.json();\r",
+							"const itemData = JSON.parse(responseJson.data);\r",
+							"pm.collectionVariables.set(\"ITEM_TXT\", JSON.parse(pm.request.body.raw).ITEM_TXT);\r",
+							"pm.test(\"성공 시 return 200, affectedRows == 1\", () => {\r",
+							"    pm.expect(responseJson.code).to.eql(200);\r",
+							"    pm.expect(itemData.affectedRows).to.eql(1);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{ACCESS_TOKEN}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"ITEM_TXT\": \"{{ITEM_SEQ}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8000/api/todos/{{ITEM_SEQ}}",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"todos",
+						"{{ITEM_SEQ}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "EditItem - Invalid Seq",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const responseJson = pm.response.json();\r",
+							"\r",
+							"pm.test(\"존재하지 않는 Item Seq일 경우 404 \", () => {\r",
+							"    pm.expect(responseJson.code).to.eql(404);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{ACCESS_TOKEN}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"ITEM_TXT\": \"{{USER_SEQ}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8000/api/todos/0",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"todos",
+						"0"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DeleteItem - Invalid Seq",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const responseJson = pm.response.json();\r",
+							"\r",
+							"pm.test(\"존재하지 않는 Item Seq일 경우 404 \", () => {\r",
+							"    pm.expect(responseJson.code).to.eql(404);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{ACCESS_TOKEN}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "localhost:8000/api/todos/0",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"todos",
+						"0"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DeleteItem",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const responseJson = pm.response.json();\r",
+							"const itemData = JSON.parse(responseJson.data);\r",
+							"\r",
+							"pm.test(\"성공 시 return 200, affectedRows == 1\", () => {\r",
+							"    pm.expect(responseJson.code).to.eql(200);\r",
+							"    pm.expect(itemData.affectedRows).to.eql(1);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{ACCESS_TOKEN}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "localhost:8000/api/todos/{{ITEM_SEQ}}",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"todos",
+						"{{ITEM_SEQ}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DeleteUser - Invalid Seq",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const responseJson = pm.response.json();\r",
+							"\r",
+							"pm.test(\"존재하지 않는 User Seq일 경우 404 \", () => {\r",
+							"    pm.expect(responseJson.code).to.eql(404);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{ACCESS_TOKEN}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "localhost:8000/api/users/0",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"users",
+						"0"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DeleteUser",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const responseJson = pm.response.json();\r",
+							"const userData = JSON.parse(responseJson.data);\r",
+							"\r",
+							"pm.test(\"성공 시 return 200, affectedRows == 1\", () => {\r",
+							"    pm.expect(responseJson.code).to.eql(200);\r",
+							"    pm.expect(userData.affectedRows).to.eql(1);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{ACCESS_TOKEN}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "localhost:8000/api/users/{{USER_SEQ}}",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"users",
+						"{{USER_SEQ}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "USER_SEQ",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "ITEM_SEQ",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "ACCESS_TOKEN",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "REFRESH_TOKEN",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "USER_ID",
+			"value": "test-user",
+			"type": "string"
+		},
+		{
+			"key": "USER_PW",
+			"value": "1234",
+			"type": "string"
+		},
+		{
+			"key": "ITEM_TXT",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

@@ -2,7 +2,7 @@ const jsonwebtoken = require('jsonwebtoken');
 
 function createJWT(payload) {
     const accessToken = create(payload, {subject: "access token", expiresIn: "5s"});
-    const refreshToken = create(payload, {subject: "access token", expiresIn: "10s"});
+    const refreshToken = create(payload, {subject: "access token", expiresIn: "10m"});
 
     return {
         accessToken: accessToken,
